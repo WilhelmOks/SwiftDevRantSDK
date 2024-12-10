@@ -1,2 +1,3 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+public struct SwiftDevRant {
+    let request = Request(encoder: .devRant, decoder: .devRant)
+}
