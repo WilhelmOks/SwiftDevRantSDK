@@ -45,3 +45,47 @@ public struct Comment: Identifiable, Hashable {
         self.image = image
     }
 }
+
+extension Comment {
+    struct CodingData: Codable {
+        let id: Int
+        let rant_id: Int
+        let body: String
+        let score: Int
+        let created_time: Int
+        let vote_state: Int
+        let links: [Link.CodingData]?
+        let user_id: Int
+        let user_username: String
+        let user_score: Int
+        let user_avatar: User.Avatar.CodingData
+        //let user_avatar_lg: User.Avatar.CodingData //TODO: check if this exists in the JSON data
+        let user_dpp: Int?
+        let attached_image: AttachedImage.CodingData?
+        let edited: Bool?
+    }
+}
+
+extension Comment.CodingData {
+    var decoded: Comment {
+        .init(
+            id: id,
+            rantId: rant_id,
+            voteState: .init(rawValue: vote_state) ?? .unvoted,
+            score: score,
+            author: .init(
+                id: user_id,
+                name: user_username,
+                score: user_score,
+                devRantSupporter: (user_dpp ?? 0) != 0,
+                avatar: user_avatar.decoded,
+                avatarLarge: nil
+            ),
+            created: Date(timeIntervalSince1970: TimeInterval(created_time)),
+            isEdited: edited ?? false,
+            text: body,
+            linksInText: links?.map(\.decoded) ?? [],
+            image: attached_image?.decoded
+        )
+    }
+}

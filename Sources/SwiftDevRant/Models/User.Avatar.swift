@@ -7,6 +7,11 @@ public extension User {
         public var imageUrl: String? {
             imageUrlPath.flatMap { "https://avatars.devrant.com/\($0)" }
         }
+        
+        public init(colorHex: String, imageUrlPath: String?) {
+            self.colorHex = colorHex
+            self.imageUrlPath = imageUrlPath
+        }
     }
 }
 
