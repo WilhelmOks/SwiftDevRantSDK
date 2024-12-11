@@ -4,14 +4,32 @@ public struct Rant: Identifiable, Hashable {
     /// The id of this rant.
     public let id: Int
     
-    /// The text contents of this rant.
-    public let text: String
+    /// A URL link to this rant.
+    public let linkToRant: String?
+    
+    /// The current logged in user's vote on this rant.
+    public let voteState: VoteState
     
     /// The number of upvotes from other users.
     public let score: Int
     
+    /// The user who wrote this rant.
+    public let author: User
+    
     /// The time when this rant was created.
     public let created: Date
+    
+    /// True if this rant is edited by the author.
+    public let isEdited: Bool
+    
+    /// True if this rant has been marked as a favorite by the logged in user.
+    public var isFavorite: Bool
+    
+    /// The text contents of this rant.
+    public let text: String
+    
+    /// The URLs and user mentions inside of the text of this rant.
+    public var linksInText: [Link]
     
     /// The optional image that the user has uploaded for this rant.
     public let image: AttachedImage?
@@ -22,29 +40,29 @@ public struct Rant: Identifiable, Hashable {
     /// The tags for this rant.
     public let tags: [String]
     
-    /// The current logged in user's vote on this rant.
-    public let voteState: VoteState
-    
-    /// True if this rant is edited by the author.
-    public let isEdited: Bool
-    
-    /// True if this rant has been marked as a favorite by the logged in user.
-    public var isFavorite: Bool
-    
-    /// A URL link to this rant.
-    public let linkToRant: String?
-    
-    /// The URLs and user mentions inside of the text of this rant.
-    public var linksInText: [Link]
-    
     /// Holds information about the weekly topic if this rant is of type weekly.
     public let weekly: Weekly?
     
     /// Holds information about the collaboration project if this rant is of type collaboration.
     public let collaboration: Collaboration?
     
-    /// The user who wrote this rant.
-    public let author: User
+    public init(id: Int, linkToRant: String?, voteState: VoteState, score: Int, author: User, created: Date, isEdited: Bool, isFavorite: Bool, text: String, linksInText: [Link], image: AttachedImage?, numberOfComments: Int, tags: [String], weekly: Rant.Weekly?, collaboration: Collaboration?) {
+        self.id = id
+        self.linkToRant = linkToRant
+        self.voteState = voteState
+        self.score = score
+        self.author = author
+        self.created = created
+        self.isEdited = isEdited
+        self.isFavorite = isFavorite
+        self.text = text
+        self.linksInText = linksInText
+        self.image = image
+        self.numberOfComments = numberOfComments
+        self.tags = tags
+        self.weekly = weekly
+        self.collaboration = collaboration
+    }
 }
 
 extension Rant {
@@ -80,19 +98,9 @@ extension Rant.CodingData {
     var decoded: Rant {
         .init(
             id: id,
-            text: text,
-            score: score,
-            created: Date(timeIntervalSince1970: TimeInterval(created_time)),
-            image: attached_image?.decoded,
-            numberOfComments: num_comments,
-            tags: tags,
-            voteState: .init(rawValue: vote_state) ?? .unvoted,
-            isEdited: edited,
-            isFavorite: (favorited ?? 0) != 0,
             linkToRant: link,
-            linksInText: links?.map(\.decoded) ?? [],
-            weekly: weekly?.decoded,
-            collaboration: decodedCollaboration,
+            voteState: .init(rawValue: vote_state) ?? .unvoted,
+            score: score,
             author: .init(
                 id: user_id,
                 name: user_username,
@@ -100,7 +108,17 @@ extension Rant.CodingData {
                 devRantSupporter: (user_dpp ?? 0) != 0,
                 avatar: user_avatar.decoded,
                 avatarLarge: user_avatar_lg.decoded
-            )
+            ),
+            created: Date(timeIntervalSince1970: TimeInterval(created_time)),
+            isEdited: edited,
+            isFavorite: (favorited ?? 0) != 0,
+            text: text,
+            linksInText: links?.map(\.decoded) ?? [],
+            image: attached_image?.decoded,
+            numberOfComments: num_comments,
+            tags: tags,
+            weekly: weekly?.decoded,
+            collaboration: decodedCollaboration
         )
     }
     
