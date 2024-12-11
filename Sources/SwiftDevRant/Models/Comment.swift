@@ -59,7 +59,7 @@ extension Comment {
         let user_username: String
         let user_score: Int
         let user_avatar: User.Avatar.CodingData
-        //let user_avatar_lg: User.Avatar.CodingData //TODO: check if this exists in the JSON data
+        let user_avatar_lg: User.Avatar.CodingData?
         let user_dpp: Int?
         let attached_image: AttachedImage.CodingData?
         let edited: Bool?
@@ -79,7 +79,7 @@ extension Comment.CodingData {
                 score: user_score,
                 devRantSupporter: (user_dpp ?? 0) != 0,
                 avatar: user_avatar.decoded,
-                avatarLarge: nil
+                avatarLarge: user_avatar_lg?.decoded
             ),
             created: Date(timeIntervalSince1970: TimeInterval(created_time)),
             isEdited: edited ?? false,

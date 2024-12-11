@@ -80,6 +80,7 @@ extension Rant {
         let link: String?
         let links: [Link.CodingData]?
         let weekly: Weekly.CodingData?
+        let c_type: Int?
         let c_type_long: String?
         let c_description: String?
         let c_tech_stack: String?
@@ -123,11 +124,12 @@ extension Rant.CodingData {
     }
     
     private var decodedCollaboration: Collaboration? {
-        let collaborationProperties = [c_type_long, c_description, c_tech_stack, c_team_size, c_url]
-        let nonNilProperties = collaborationProperties.compactMap { $0 }
-        guard !nonNilProperties.isEmpty else { return nil }
+        guard c_type != nil || c_type_long != nil || c_description != nil || c_tech_stack != nil || c_team_size != nil || c_url != nil else {
+            return nil
+        }
         return .init(
-            type: c_type_long ?? "",
+            kind: c_type.flatMap { .init(rawValue: $0) },
+            kindDescription: c_type_long ?? "",
             description: c_description ?? "",
             techStack: c_tech_stack ?? "",
             teamSize: c_team_size ?? "",
