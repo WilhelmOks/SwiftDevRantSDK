@@ -4,9 +4,9 @@ public struct User: Identifiable, Hashable {
     public let score: Int
     public let devRantSupporter: Bool
     
-    /// The author's avatar, can be used optimally for small portraits of the user.
-    //TODO: public let userAvatar: UserAvatar
+    /// A small avatar for the rant views and comment views.
+    public let avatar: Avatar
     
-    /// A larger version of the author's avatar, can be used optimally for profile screens.
-    //TODO: public let userAvatarLarge: UserAvatar
+    /// A large avatar for the profile view.
+    public let avatarLarge: Avatar
 }
