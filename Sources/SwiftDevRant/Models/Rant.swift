@@ -23,13 +23,13 @@ public struct Rant: Identifiable, Hashable {
     public let isEdited: Bool
     
     /// True if this rant has been marked as a favorite by the logged in user.
-    public var isFavorite: Bool
+    public let isFavorite: Bool
     
     /// The text contents of this rant.
     public let text: String
     
     /// The URLs and user mentions inside of the text of this rant.
-    public var linksInText: [Link]
+    public let linksInText: [Link]
     
     /// The optional image that the user has uploaded for this rant.
     public let image: AttachedImage?

@@ -12,7 +12,7 @@ public struct Comment: Identifiable, Hashable {
     public let voteState: VoteState
     
     /// The number of upvotes from other users.
-    public var score: Int
+    public let score: Int
     
     /// The user who wrote this comment.
     public let author: User
@@ -27,7 +27,7 @@ public struct Comment: Identifiable, Hashable {
     public let text: String
     
     /// The URLs and user mentions inside of the text of this comment.
-    public var linksInText: [Link]
+    public let linksInText: [Link]
     
     /// The optional image that the user has uploaded for this comment.
     public let image: AttachedImage?
