@@ -1,3 +1,4 @@
+/// Represents a user.
 public struct User: Identifiable, Hashable {
     public let id: Int
     
@@ -10,17 +11,17 @@ public struct User: Identifiable, Hashable {
     public let devRantSupporter: Bool
     
     /// A small avatar for the rant views and comment views.
-    public let avatar: Avatar
+    public let avatarSmall: Avatar
     
     /// A large avatar for the profile view.
     public let avatarLarge: Avatar?
     
-    public init(id: Int, name: String, score: Int, devRantSupporter: Bool, avatar: User.Avatar, avatarLarge: User.Avatar?) {
+    public init(id: Int, name: String, score: Int, devRantSupporter: Bool, avatarSmall: User.Avatar, avatarLarge: User.Avatar?) {
         self.id = id
         self.name = name
         self.score = score
         self.devRantSupporter = devRantSupporter
-        self.avatar = avatar
+        self.avatarSmall = avatarSmall
         self.avatarLarge = avatarLarge
     }
 }

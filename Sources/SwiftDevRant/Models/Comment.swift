@@ -78,7 +78,7 @@ extension Comment.CodingData {
                 name: user_username,
                 score: user_score,
                 devRantSupporter: (user_dpp ?? 0) != 0,
-                avatar: user_avatar.decoded,
+                avatarSmall: user_avatar.decoded,
                 avatarLarge: user_avatar_lg?.decoded
             ),
             created: Date(timeIntervalSince1970: TimeInterval(created_time)),
