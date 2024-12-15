@@ -19,7 +19,7 @@ public struct Request {
         }
     }
     
-    public struct EmptyError: Decodable {
+    public struct EmptyError: Decodable, Swift.Error {
         
     }
     
