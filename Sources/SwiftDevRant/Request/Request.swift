@@ -52,7 +52,7 @@ public struct Request {
     }
     
     private func makeURLRequest(config: Config, body: Data?) -> URLRequest {
-        let urlQuery = urlEncodedQueryString(from: config.urlParameters)
+        let urlQuery = Self.urlEncodedQueryString(from: config.urlParameters)
         guard let url = URL(string: config.backend.baseURL + config.path + urlQuery) else {
             fatalError("Couldn't create a URL")
         }
@@ -65,7 +65,7 @@ public struct Request {
         return urlRequest
     }
     
-    private func urlEncodedQueryString(from query: [String: String]) -> String {
+    public static func urlEncodedQueryString(from query: [String: String]) -> String {
         guard !query.isEmpty else { return "" }
         var components = URLComponents()
         components.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
@@ -74,29 +74,10 @@ public struct Request {
         return plusCorrection
     }
     
-    @discardableResult private func requestData<ApiError: Decodable>(urlRequest: URLRequest, apiError: ApiError.Type = EmptyError.self) async throws(Error<ApiError>) -> (data: Data, headers: [AnyHashable: Any]) {
+    @discardableResult private func requestData<ApiError: Decodable & Sendable>(urlRequest: URLRequest, apiError: ApiError.Type = EmptyError.self) async throws -> (data: Data, headers: [AnyHashable: Any]) {
+        let response: (Data, URLResponse)
         do {
-            let response = try await session.data(for: urlRequest)
-            
-            if let httpResponse = response.1 as? HTTPURLResponse {
-                let data = response.0
-                
-                if let logger {
-                    let logInputString = urlRequest.httpBody.flatMap { jsonString(data: $0, prettyPrinted: true) } ?? "(none)"
-                    let logOutputString = !data.isEmpty ? jsonString(data: data, prettyPrinted: true) ?? "-" : "(none)"
-                    logger.log("\(urlRequest.httpMethod?.uppercased() ?? "?") \(urlRequest.url?.absoluteString ?? "")\nbody: \(logInputString)\nresponse: \(logOutputString)")
-                }
-                
-                if (200..<300).contains(httpResponse.statusCode) {
-                    return (data, httpResponse.allHeaderFields)
-                } else if httpResponse.statusCode == 404 {
-                    throw Error<ApiError>.notFound
-                } else {
-                    throw Error<ApiError>.apiError(try decoder.decode(apiError, from: data))
-                }
-            } else {
-                throw Error<ApiError>.notHttpResponse
-            }
+            response = try await session.data(for: urlRequest)
         } catch {
             if let error = error as? URLError, error.code == .notConnectedToInternet {
                 throw Error<ApiError>.noInternet
@@ -104,10 +85,30 @@ public struct Request {
                 throw Error<ApiError>.generalError
             }
         }
+        
+        if let httpResponse = response.1 as? HTTPURLResponse {
+            let data = response.0
+            
+            if let logger {
+                let logInputString = urlRequest.httpBody.flatMap { Self.jsonString(data: $0, prettyPrinted: true) } ?? "(none)"
+                let logOutputString = !data.isEmpty ? Self.jsonString(data: data, prettyPrinted: true) ?? "-" : "(none)"
+                logger.log("\(urlRequest.httpMethod?.uppercased() ?? "?") \(urlRequest.url?.absoluteString ?? "")\nbody: \(logInputString)\nresponse: \(logOutputString)")
+            }
+            
+            if (200..<300).contains(httpResponse.statusCode) {
+                return (data, httpResponse.allHeaderFields)
+            } else if httpResponse.statusCode == 404 {
+                throw Error<ApiError>.notFound
+            } else {
+                throw Error<ApiError>.apiError(try decoder.decode(apiError, from: data))
+            }
+        } else {
+            throw Error<ApiError>.notHttpResponse
+        }
     }
     
     /// JSON Data to String converter for printing/logging purposes
-    private func jsonString(data: Data, prettyPrinted: Bool) -> String? {
+    public static func jsonString(data: Data, prettyPrinted: Bool) -> String? {
         do {
             let writingOptions: JSONSerialization.WritingOptions = prettyPrinted ? [.prettyPrinted] : []
             let decoded: Data?
@@ -124,14 +125,13 @@ public struct Request {
             }
             return decoded.flatMap { String(data: $0, encoding: .utf8) }
         } catch {
-            print(error)
             return String(data: data, encoding: .utf8)
         }
     }
     
     // MARK: public
     
-    public func requestJson<ApiError: Decodable>(config: Config, apiError: ApiError.Type = EmptyError.self) async throws(Error<ApiError>) {
+    public func requestJson<ApiError: Decodable & Sendable>(config: Config, apiError: ApiError.Type = EmptyError.self) async throws {
         let urlRequest = makeURLRequest(config: config, body: nil)
         try await requestData(urlRequest: urlRequest, apiError: apiError)
     }
@@ -150,6 +150,13 @@ public struct Request {
     
     public func requestJson<In: Encodable, Out: Decodable, ApiError: Decodable & Sendable>(config: Config, json: In, apiError: ApiError.Type = EmptyError.self) async throws -> Out {
         let inData = try encoder.encode(json)
+        let urlRequest = makeURLRequest(config: config, body: inData)
+        let outData = try await requestData(urlRequest: urlRequest, apiError: apiError).data
+        return try decoder.decode(Out.self, from: outData)
+    }
+    
+    public func requestJson<Out: Decodable, ApiError: Decodable & Sendable>(config: Config, string: String, apiError: ApiError.Type = EmptyError.self) async throws -> Out {
+        let inData = string.data(using: .utf8)
         let urlRequest = makeURLRequest(config: config, body: inData)
         let outData = try await requestData(urlRequest: urlRequest, apiError: apiError).data
         return try decoder.decode(Out.self, from: outData)

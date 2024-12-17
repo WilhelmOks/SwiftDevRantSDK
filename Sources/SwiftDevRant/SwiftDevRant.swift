@@ -1,6 +1,10 @@
 public struct SwiftDevRant {
-    let request = Request(encoder: .devRant, decoder: .devRant)
+    let request: Request
     let backend = DevRantBackend()
+    
+    public init(requestLogger: Logger) {
+        self.request = Request(encoder: .devRant, decoder: .devRant, logger: requestLogger)
+    }
     
     func makeConfig(_ method: Request.Method, path: String, urlParameters: [String: String] = [:], headers: [String: String] = [:], token: AuthToken? = nil) -> Request.Config {
         var urlParameters = urlParameters
@@ -19,12 +23,16 @@ public struct SwiftDevRant {
     
     public func logIn(username: String, password: String) async throws -> AuthToken {
         var parameters: [String: String] = [:]
+        parameters["app"] = "3"
         parameters["username"] = username
         parameters["password"] = password
         
-        let config = makeConfig(.post, path: "users/auth-token", urlParameters: parameters)
+        let config = makeConfig(.post, path: "users/auth-token")
         
-        let response: AuthToken.CodingData.Container = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        // For the log in request the url encoded parameters are passed as a string in the http body instead of in the URL.
+        let body = String(Request.urlEncodedQueryString(from: parameters).dropFirst()) // dropping the first character "?"
+        
+        let response: AuthToken.CodingData.Container = try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
         
         return response.auth_token.decoded
     }
