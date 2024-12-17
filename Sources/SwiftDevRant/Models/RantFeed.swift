@@ -57,7 +57,7 @@ extension RantFeed {
         //let settings //not sure what the purpose is. probably not needed.
         let set: String?
         let wrw: Int?
-        let dpp: Int
+        let dpp: Int?
         let num_notifs: Int?
         //let unread //probably the same info as already provided by num_notifs, so not needed.
         let news: News.CodingData?
@@ -70,7 +70,7 @@ extension RantFeed.CodingData {
             rants: rants.map(\.decoded),
             sessionHash: `set`,
             weeklyRantWeek: wrw,
-            devRantSupporter: dpp != 0,
+            devRantSupporter: (dpp ?? 0) != 0,
             numberOfUnreadNotifications: num_notifs ?? 0,
             news: news?.decoded
         )
