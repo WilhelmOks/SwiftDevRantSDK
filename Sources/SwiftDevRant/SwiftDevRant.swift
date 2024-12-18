@@ -133,4 +133,28 @@ public struct SwiftDevRant {
         
         return response.data.decoded
     }
+    
+    /// Gets a single rant and its comments.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - rantId: The id of the rant.
+    ///    - lastCommentId: Only fetch the comments which were posted after the one corresponding to this id. Pass `nil` to get all comments.
+    public func getRant(token: AuthToken, rantId: Int, lastCommentId: Int? = nil) async throws -> (rant: Rant, comments: [Comment]) {
+        var parameters: [String: String] = [:]
+
+        parameters["last_comment_id"] = lastCommentId.flatMap { String($0) }
+        //parameters["ver"] = "1.17.0.4" //TODO: check if this is needed
+        
+        let config = makeConfig(.get, path: "devrant/rants/\(rantId)", urlParameters: parameters)
+        
+        struct Response: Codable {
+            let rant: Rant.CodingData
+            let comments: [Comment.CodingData]?
+        }
+        
+        let response: Response = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        
+        return (rant: response.rant.decoded, comments: response.comments?.map(\.decoded) ?? [])
+    }
 }
