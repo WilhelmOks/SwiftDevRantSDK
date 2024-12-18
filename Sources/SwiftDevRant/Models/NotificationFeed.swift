@@ -2,7 +2,7 @@ import Foundation
 
 /// Contains a list of all notifications for the logged in user and the numbers of unread notifications.
 public struct NotificationFeed: Hashable {
-    public enum Categories: String, CaseIterable {
+    public enum Category: String, CaseIterable {
         case all = ""
         case upvotes = "upvotes"
         case mentions = "mentions"
@@ -32,6 +32,10 @@ public struct NotificationFeed: Hashable {
 
 extension NotificationFeed {
     struct CodingData: Decodable {
+        struct Container: Decodable {
+            let data: NotificationFeed.CodingData
+        }
+        
         let check_time: Int
         let items: [Notification.CodingData]
         let unread: UnreadNumbers.CodingData

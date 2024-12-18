@@ -71,7 +71,7 @@ extension Rant {
         let text: String
         let score: Int
         let created_time: Int
-        let attached_image: AttachedImage.CodingData?
+        let attached_image: AttachedImage.CodingData? // this value can also be of type String. See the custom decoding code.
         let num_comments: Int
         let tags: [String]
         let vote_state: Int
@@ -104,8 +104,10 @@ extension Rant {
             created_time = try values.decode(Int.self, forKey: .created_time)
             
             do {
+                // If the value is an object, decode it into an attached image.
                 attached_image = try values.decode(AttachedImage.CodingData.self, forKey: .attached_image)
             } catch {
+                // Otherwise it was an empty string. Treat is as no attached image.
                 attached_image = nil
             }
             

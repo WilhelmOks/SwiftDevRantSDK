@@ -1,3 +1,5 @@
+import Foundation
+
 public struct SwiftDevRant {
     let request: Request
     let backend = DevRantBackend()
@@ -79,7 +81,7 @@ public struct SwiftDevRant {
         return response.decoded
     }
     
-    /// Get all weeklies as a list.
+    /// Gets all weeklies as a list.
     ///
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
@@ -89,5 +91,46 @@ public struct SwiftDevRant {
         let response: Weekly.CodingData.List = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
         
         return response.weeks.map(\.decoded)
+    }
+    
+    /// Gets a specific week's weekly rants.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - week: The number of the week. Pass `nil` to get the latest week's rants.
+    ///    - limit: The number of rants for pagination.
+    ///    - skip: How many rants to skip for pagination.
+    public func getWeeklyRants(token: AuthToken, week: Int?, limit: Int = 20, skip: Int) async throws -> RantFeed {
+        var parameters: [String: String] = [:]
+        
+        parameters["week"] = week.flatMap { String($0) }
+        parameters["limit"] = String(limit)
+        parameters["skip"] = String(skip)
+        
+        //parameters["sort"] = "algo" //TODO: This seems wrong. Check if this is needed or not.
+        
+        let config = makeConfig(.get, path: "devrant/weekly-rants", urlParameters: parameters)
+        
+        let response: RantFeed.CodingData = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        
+        return response.decoded
+    }
+    
+    /// Gets the list of notifications and numbers for each notification type.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - lastChecked: Pass the value from the last response or `nil`.
+    public func getNotificationFeed(token: AuthToken, lastChecked: Date?, category: NotificationFeed.Category) async throws -> NotificationFeed {
+        var parameters: [String: String] = [:]
+        
+        parameters["last_time"] = lastChecked.flatMap { String(Int($0.timeIntervalSince1970)) } ?? "0"
+        parameters["ext_prof"] = "1" // I don't know wtf that is.
+        
+        let config = makeConfig(.get, path: "users/me/notif-feed\(category.rawValue)", urlParameters: parameters)
+        
+        let response: NotificationFeed.CodingData.Container = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        
+        return response.data.decoded
     }
 }
