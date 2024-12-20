@@ -261,10 +261,14 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - rantId: The id of the rant.
     ///    - vote: The vote for this rant.
-    public func voteOnRant(token: AuthToken, rantId: Int, vote: VoteState) async throws -> Rant { //TODO: add downvote reason
+    public func voteOnRant(token: AuthToken, rantId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Rant {
         var parameters: [String: String] = [:]
 
         parameters["vote"] = String(vote.rawValue)
+        
+        if vote == .downvoted {
+            parameters["reason"] = String(downvoteReason.rawValue)
+        }
         
         let config = makeConfig(.post, path: "devrant/rants/\(rantId)/vote", urlParameters: parameters, token: token)
         
@@ -284,10 +288,14 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - commentId: The id of the comment.
     ///    - vote: The vote for this comment.
-    public func voteOnComment(token: AuthToken, commentId: Int, vote: VoteState) async throws -> Comment {
+    public func voteOnComment(token: AuthToken, commentId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Comment {
         var parameters: [String: String] = [:]
 
         parameters["vote"] = String(vote.rawValue)
+        
+        if vote == .downvoted {
+            parameters["reason"] = String(downvoteReason.rawValue)
+        }
         
         let config = makeConfig(.post, path: "comments/\(commentId)/vote", urlParameters: parameters, token: token)
         
