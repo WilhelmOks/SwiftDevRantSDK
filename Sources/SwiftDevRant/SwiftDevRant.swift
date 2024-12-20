@@ -1,14 +1,15 @@
 import Foundation
+import KreeRequest
 
 public struct SwiftDevRant {
-    let request: Request
+    let request: KreeRequest
     let backend = DevRantBackend()
     
     public init(requestLogger: Logger) {
-        self.request = Request(encoder: .devRant, decoder: .devRant, logger: requestLogger)
+        self.request = KreeRequest(encoder: .devRant, decoder: .devRant, logger: requestLogger)
     }
     
-    private func makeConfig(_ method: Request.Method, path: String, urlParameters: [String: String] = [:], headers: [String: String] = [:], token: AuthToken? = nil) -> Request.Config {
+    private func makeConfig(_ method: KreeRequest.Method, path: String, urlParameters: [String: String] = [:], headers: [String: String] = [:], token: AuthToken? = nil) -> KreeRequest.Config {
         var urlParameters = urlParameters
         urlParameters["app"] = "3"
         
@@ -24,7 +25,7 @@ public struct SwiftDevRant {
         return .init(method: method, backend: backend, path: path, urlParameters: urlParameters, headers: headers)
     }
     
-    private func makeMultipartConfig(_ method: Request.Method, path: String, parameters: [String: String] = [:], boundary: String, headers: [String: String] = [:], token: AuthToken? = nil) -> Request.Config {
+    private func makeMultipartConfig(_ method: KreeRequest.Method, path: String, parameters: [String: String] = [:], boundary: String, headers: [String: String] = [:], token: AuthToken? = nil) -> KreeRequest.Config {
         var parameters = parameters
         parameters["app"] = "3"
         
@@ -76,7 +77,7 @@ public extension SwiftDevRant {
         let config = makeConfig(.post, path: "users/auth-token")
         
         // For the log in request the url encoded parameters are passed as a string in the http body instead of in the URL.
-        let body = String(Request.urlEncodedQueryString(from: parameters).dropFirst()) // dropping the first character "?"
+        let body = String(KreeRequest.urlEncodedQueryString(from: parameters).dropFirst()) // dropping the first character "?"
         
         let response: AuthToken.CodingData.Container = try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
         
@@ -492,7 +493,7 @@ public extension SwiftDevRant {
     ///    - userId: The id of the user to subscribe to or to unsubscribe from.
     ///    - subscribe: `true` subscribes to the user, `false` unsubscribes from the user.
     func subscribeToUser(token: AuthToken, userId: Int, subscribe: Bool) async throws {
-        let method: Request.Method = subscribe ? .post : .delete
+        let method: KreeRequest.Method = subscribe ? .post : .delete
         
         let config = makeConfig(method, path: "users/\(userId)/subscribe", token: token)
         

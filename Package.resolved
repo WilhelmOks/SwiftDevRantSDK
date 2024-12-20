@@ -1,0 +1,15 @@
+{
+  "originHash" : "e6d5e17e67c8a09b38a3e356fa94b64f66f993b6102d12b3e4ad9adc4352c7d0",
+  "pins" : [
+    {
+      "identity" : "kreerequest",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/WilhelmOks/KreeRequest",
+      "state" : {
+        "revision" : "ce0d2ecdf923a9110b1439f22e868d22dd4ca006",
+        "version" : "1.0.2"
+      }
+    }
+  ],
+  "version" : 3
+}
