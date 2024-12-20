@@ -207,7 +207,7 @@ public extension SwiftDevRant {
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
     ///    - commentId: The id of the comment.
-    public func getCommentFromID(token: AuthToken, commentId: Int) async throws -> Comment {
+    public func getComment(token: AuthToken, commentId: Int) async throws -> Comment {
         let config = makeConfig(.get, path: "comments/\(commentId)", token: token)
         
         let response: Comment.CodingData = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -242,7 +242,7 @@ public extension SwiftDevRant {
     ///    - userId: The id of the user.
     ///    - contentType: The type of content created by the user to be fetched.
     ///    - skip: The number of content items to skip for pagination.
-    public func getProfileFromID(token: AuthToken, userId: Int, contentType: Profile.ContentType, skip: Int) async throws -> Profile {
+    public func getProfile(token: AuthToken, userId: Int, contentType: Profile.ContentType, skip: Int) async throws -> Profile {
         var parameters: [String: String] = [:]
 
         parameters["skip"] = String(skip)
@@ -331,7 +331,7 @@ public extension SwiftDevRant {
         try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
     }
     
-    /// Posts a rant.
+    /// Creates and posts a rant.
     ///
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
@@ -364,6 +364,139 @@ public extension SwiftDevRant {
         let response: Response = try await request.requestJson(config: config, data: bodyData, apiError: DevRantApiError.CodingData.self)
         
         return response.rant_id
+    }
+    
+    /// Deletes a rant.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - rantId: The id of the rant.
+    public func deleteRant(token: AuthToken, rantId: Int) async throws {
+        let config = makeConfig(.delete, path: "devrant/rants/\(rantId)", token: token)
+        
+        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Sets or unsets a rant as a favorite.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - rantId: The id of the rant.
+    ///    - favorite: `true` sets the rant as favorite and `false` sets it as not favorite.
+    public func favoriteRant(token: AuthToken, rantId: Int, favorite: Bool) async throws {
+        let favoritePath = favorite ? "favorite" : "unfavorite"
+        
+        let config = makeConfig(.post, path: "devrant/rants/\(rantId)/\(favoritePath)", token: token)
+        
+        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Edits a posted rant.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - rantId: The id of the rant.
+    ///    - kind: The type of the rant.
+    ///    - text: The text content of the rant.
+    ///    - tags: The rants's associated tags.
+    ///    - image: An image to attach to the rant.
+    public func editRant(token: AuthToken, rantId: Int, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+        let boundary = UUID().uuidString
+        
+        let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)", boundary: boundary)
+        
+        var parameters = config.urlParameters
+
+        parameters["rant"] = text
+        parameters["tags"] = tags
+        parameters["type"] = String(kind.rawValue)
+        
+        let convertedImage = image.flatMap { imageConversion.convert($0) }
+        
+        let bodyData = multipartBody(parameters: parameters, boundary: boundary, imageData: convertedImage)
+        
+        try await request.requestJson(config: config, data: bodyData, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Creates and posts a comment for a specific rant.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - rantId: The id of the rant that this comment should be posted for.
+    ///    - text: The text content of the comment.
+    ///    - image: An image to attach to the comment.
+    public func postComment(token: AuthToken, rantId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+        let boundary = UUID().uuidString
+        
+        let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)/comments", boundary: boundary)
+        
+        var parameters = config.urlParameters
+
+        parameters["comment"] = text
+        
+        let convertedImage = image.flatMap { imageConversion.convert($0) }
+        
+        let bodyData = multipartBody(parameters: parameters, boundary: boundary, imageData: convertedImage)
+        
+        try await request.requestJson(config: config, data: bodyData, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Edits a posted comment.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - commentId: The id of the comment.
+    ///    - text: The text content of the comment.
+    ///    - image: An image to attach to the comment.
+    public func editComment(token: AuthToken, commentId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+        let boundary = UUID().uuidString
+        
+        let config = makeMultipartConfig(.post, path: "comments/\(commentId)", boundary: boundary)
+        
+        var parameters = config.urlParameters
+
+        parameters["comment"] = text
+        
+        let convertedImage = image.flatMap { imageConversion.convert($0) }
+        
+        let bodyData = multipartBody(parameters: parameters, boundary: boundary, imageData: convertedImage)
+        
+        try await request.requestJson(config: config, data: bodyData, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Deletes a comment.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - commentId: The id of the comment.
+    public func deleteComment(token: AuthToken, commentId: Int) async throws {
+        let config = makeConfig(.delete, path: "comments/\(commentId)", token: token)
+        
+        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Marks all notifications as read.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    public func markAllNotificationsAsRead(token: AuthToken) async throws {
+        let config = makeConfig(.delete, path: "users/me/notif-feed", token: token)
+        
+        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Subscribes to or unsubscribes from a user.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - userId: The id of the user to subscribe to or to unsubscribe from.
+    ///    - subscribe: `true` subscribes to the user, `false` unsubscribes from the user.
+    public func subscribeToUser(token: AuthToken, userId: Int, subscribe: Bool) async throws {
+        let method: Request.Method = subscribe ? .post : .delete
+        
+        let config = makeConfig(method, path: "users/\(userId)/subscribe", token: token)
+        
+        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
     }
 }
 
