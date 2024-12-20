@@ -161,4 +161,10 @@ public struct Request {
         let outData = try await requestData(urlRequest: urlRequest, apiError: apiError).data
         return try decoder.decode(Out.self, from: outData)
     }
+    
+    public func requestJson<Out: Decodable, ApiError: Decodable & Sendable>(config: Config, data: Data, apiError: ApiError.Type = EmptyError.self) async throws -> Out {
+        let urlRequest = makeURLRequest(config: config, body: data)
+        let outData = try await requestData(urlRequest: urlRequest, apiError: apiError).data
+        return try decoder.decode(Out.self, from: outData)
+    }
 }
