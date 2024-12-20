@@ -67,7 +67,7 @@ public struct SwiftDevRant {
 }
 
 public extension SwiftDevRant {
-    public func logIn(username: String, password: String) async throws -> AuthToken {
+    func logIn(username: String, password: String) async throws -> AuthToken {
         var parameters: [String: String] = [:]
         parameters["app"] = "3"
         parameters["username"] = username
@@ -90,7 +90,7 @@ public extension SwiftDevRant {
     ///    - limit: The number of rants to get for pagination.
     ///    - skip: How many rants to skip for pagination.
     ///    - sessionHash: Pass the session hash value from the last rant feed response or `nil` if calling for the first time.
-    public func getRantFeed(token: AuthToken, sort: RantFeed.Sort = .algorithm, limit: Int = 20, skip: Int, sessionHash: String?) async throws -> RantFeed {
+    func getRantFeed(token: AuthToken, sort: RantFeed.Sort = .algorithm, limit: Int = 20, skip: Int, sessionHash: String?) async throws -> RantFeed {
         var parameters: [String: String] = [:]
         
         parameters["sort"] = switch sort {
@@ -129,7 +129,7 @@ public extension SwiftDevRant {
     ///
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
-    public func getWeeklies(token: AuthToken) async throws -> [Weekly] {
+    func getWeeklies(token: AuthToken) async throws -> [Weekly] {
         let config = makeConfig(.get, path: "devrant/weekly-list", token: token)
         
         let response: Weekly.CodingData.List = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -144,7 +144,7 @@ public extension SwiftDevRant {
     ///    - week: The number of the week. Pass `nil` to get the latest week's rants.
     ///    - limit: The number of rants for pagination.
     ///    - skip: How many rants to skip for pagination.
-    public func getWeeklyRants(token: AuthToken, week: Int?, limit: Int = 20, skip: Int) async throws -> RantFeed {
+    func getWeeklyRants(token: AuthToken, week: Int?, limit: Int = 20, skip: Int) async throws -> RantFeed {
         var parameters: [String: String] = [:]
         
         parameters["week"] = week.flatMap { String($0) }
@@ -165,7 +165,7 @@ public extension SwiftDevRant {
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
     ///    - lastChecked: Pass the value from the last response or `nil`.
-    public func getNotificationFeed(token: AuthToken, lastChecked: Date?, category: NotificationFeed.Category) async throws -> NotificationFeed {
+    func getNotificationFeed(token: AuthToken, lastChecked: Date?, category: NotificationFeed.Category) async throws -> NotificationFeed {
         var parameters: [String: String] = [:]
         
         parameters["last_time"] = lastChecked.flatMap { String(Int($0.timeIntervalSince1970)) } ?? "0"
@@ -184,7 +184,7 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - rantId: The id of the rant.
     ///    - lastCommentId: Only fetch the comments which were posted after the one corresponding to this id. Pass `nil` to get all comments.
-    public func getRant(token: AuthToken, rantId: Int, lastCommentId: Int? = nil) async throws -> (rant: Rant, comments: [Comment]) {
+    func getRant(token: AuthToken, rantId: Int, lastCommentId: Int? = nil) async throws -> (rant: Rant, comments: [Comment]) {
         var parameters: [String: String] = [:]
 
         parameters["last_comment_id"] = lastCommentId.flatMap { String($0) }
@@ -207,7 +207,7 @@ public extension SwiftDevRant {
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
     ///    - commentId: The id of the comment.
-    public func getComment(token: AuthToken, commentId: Int) async throws -> Comment {
+    func getComment(token: AuthToken, commentId: Int) async throws -> Comment {
         let config = makeConfig(.get, path: "comments/\(commentId)", token: token)
         
         let response: Comment.CodingData = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -219,7 +219,7 @@ public extension SwiftDevRant {
     ///
     /// - Parameters:
     ///    - username: The username of the user.
-    public func getUserId(username: String) async throws -> Int {
+    func getUserId(username: String) async throws -> Int {
         var parameters: [String: String] = [:]
 
         parameters["username"] = username
@@ -242,7 +242,7 @@ public extension SwiftDevRant {
     ///    - userId: The id of the user.
     ///    - contentType: The type of content created by the user to be fetched.
     ///    - skip: The number of content items to skip for pagination.
-    public func getProfile(token: AuthToken, userId: Int, contentType: Profile.ContentType, skip: Int) async throws -> Profile {
+    func getProfile(token: AuthToken, userId: Int, contentType: Profile.ContentType, skip: Int) async throws -> Profile {
         var parameters: [String: String] = [:]
 
         parameters["skip"] = String(skip)
@@ -261,7 +261,7 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - rantId: The id of the rant.
     ///    - vote: The vote for this rant.
-    public func voteOnRant(token: AuthToken, rantId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Rant {
+    func voteOnRant(token: AuthToken, rantId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Rant {
         var parameters: [String: String] = [:]
 
         parameters["vote"] = String(vote.rawValue)
@@ -288,7 +288,7 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - commentId: The id of the comment.
     ///    - vote: The vote for this comment.
-    public func voteOnComment(token: AuthToken, commentId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Comment {
+    func voteOnComment(token: AuthToken, commentId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Comment {
         var parameters: [String: String] = [:]
 
         parameters["vote"] = String(vote.rawValue)
@@ -317,7 +317,7 @@ public extension SwiftDevRant {
     ///    - github: The user's GitHub link.
     ///    - location: The user's geographic location.
     ///    - website: The user's personal website.
-    public func editUserProfile(token: AuthToken, about: String, skills: String, github: String, location: String, website: String) async throws {
+    func editUserProfile(token: AuthToken, about: String, skills: String, github: String, location: String, website: String) async throws {
         var parameters: [String: String] = [:]
 
         parameters["profile_about"] = about
@@ -342,7 +342,7 @@ public extension SwiftDevRant {
     ///    - imageConversion: The image conversion methods for unsupported image formats.
     /// - Returns:
     ///    The id of the posted rant.
-    public func postRant(token: AuthToken, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws -> Int {
+    func postRant(token: AuthToken, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws -> Int {
         let boundary = UUID().uuidString
         
         let config = makeMultipartConfig(.post, path: "devrant/rants", boundary: boundary)
@@ -371,7 +371,7 @@ public extension SwiftDevRant {
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
     ///    - rantId: The id of the rant.
-    public func deleteRant(token: AuthToken, rantId: Int) async throws {
+    func deleteRant(token: AuthToken, rantId: Int) async throws {
         let config = makeConfig(.delete, path: "devrant/rants/\(rantId)", token: token)
         
         try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -383,7 +383,7 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - rantId: The id of the rant.
     ///    - favorite: `true` sets the rant as favorite and `false` sets it as not favorite.
-    public func favoriteRant(token: AuthToken, rantId: Int, favorite: Bool) async throws {
+    func favoriteRant(token: AuthToken, rantId: Int, favorite: Bool) async throws {
         let favoritePath = favorite ? "favorite" : "unfavorite"
         
         let config = makeConfig(.post, path: "devrant/rants/\(rantId)/\(favoritePath)", token: token)
@@ -400,7 +400,7 @@ public extension SwiftDevRant {
     ///    - text: The text content of the rant.
     ///    - tags: The rants's associated tags.
     ///    - image: An image to attach to the rant.
-    public func editRant(token: AuthToken, rantId: Int, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+    func editRant(token: AuthToken, rantId: Int, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
         let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)", boundary: boundary)
@@ -425,7 +425,7 @@ public extension SwiftDevRant {
     ///    - rantId: The id of the rant that this comment should be posted for.
     ///    - text: The text content of the comment.
     ///    - image: An image to attach to the comment.
-    public func postComment(token: AuthToken, rantId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+    func postComment(token: AuthToken, rantId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
         let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)/comments", boundary: boundary)
@@ -448,7 +448,7 @@ public extension SwiftDevRant {
     ///    - commentId: The id of the comment.
     ///    - text: The text content of the comment.
     ///    - image: An image to attach to the comment.
-    public func editComment(token: AuthToken, commentId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+    func editComment(token: AuthToken, commentId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
         let config = makeMultipartConfig(.post, path: "comments/\(commentId)", boundary: boundary)
@@ -469,7 +469,7 @@ public extension SwiftDevRant {
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
     ///    - commentId: The id of the comment.
-    public func deleteComment(token: AuthToken, commentId: Int) async throws {
+    func deleteComment(token: AuthToken, commentId: Int) async throws {
         let config = makeConfig(.delete, path: "comments/\(commentId)", token: token)
         
         try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -479,7 +479,7 @@ public extension SwiftDevRant {
     ///
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
-    public func markAllNotificationsAsRead(token: AuthToken) async throws {
+    func markAllNotificationsAsRead(token: AuthToken) async throws {
         let config = makeConfig(.delete, path: "users/me/notif-feed", token: token)
         
         try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -491,7 +491,7 @@ public extension SwiftDevRant {
     ///    - token: The token from the `logIn` call response.
     ///    - userId: The id of the user to subscribe to or to unsubscribe from.
     ///    - subscribe: `true` subscribes to the user, `false` unsubscribes from the user.
-    public func subscribeToUser(token: AuthToken, userId: Int, subscribe: Bool) async throws {
+    func subscribeToUser(token: AuthToken, userId: Int, subscribe: Bool) async throws {
         let method: Request.Method = subscribe ? .post : .delete
         
         let config = makeConfig(method, path: "users/\(userId)/subscribe", token: token)
