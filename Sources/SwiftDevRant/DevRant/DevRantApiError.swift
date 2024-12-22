@@ -1,6 +1,6 @@
 /// Represents an error coming directly from the devrant API.
 public struct DevRantApiError: Swift.Error {
-    let message: String
+    public let message: String
 }
 
 public extension DevRantApiError {

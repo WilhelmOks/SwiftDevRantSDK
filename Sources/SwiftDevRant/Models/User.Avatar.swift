@@ -1,11 +1,13 @@
+import Foundation
+
 public extension User {
-    struct Avatar: Hashable {
+    struct Avatar: Hashable, Sendable {
         public let colorHex: String
         
         public let imageUrlPath: String?
         
-        public var imageUrl: String? {
-            imageUrlPath.flatMap { "https://avatars.devrant.com/\($0)" }
+        public var imageUrl: URL? {
+            imageUrlPath.flatMap { URL(string: "https://avatars.devrant.com/\($0)") }
         }
         
         public init(colorHex: String, imageUrlPath: String?) {

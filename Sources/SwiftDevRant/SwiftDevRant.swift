@@ -1,7 +1,7 @@
 import Foundation
 import KreeRequest
 
-public struct SwiftDevRant {
+public struct SwiftDevRant { //TODO: rename to something else to not collide with the module name
     let request: KreeRequest
     let backend = DevRantBackend()
     

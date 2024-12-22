@@ -1,8 +1,8 @@
 import Foundation
 
 /// A notification about activities in a rant or a comment.
-public struct Notification: Hashable, Identifiable {
-    public enum Kind: String {
+public struct Notification: Hashable, Identifiable, Sendable {
+    public enum Kind: String, Sendable {
         /// An upvote for a rant.
         case rantUpvote = "content_vote"
         

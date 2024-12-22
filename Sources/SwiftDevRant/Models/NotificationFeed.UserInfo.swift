@@ -1,5 +1,5 @@
 public extension NotificationFeed {
-    struct UserInfo: Hashable {
+    struct UserInfo: Hashable, Sendable {
         public let avatar: User.Avatar
         public let username: String
         public let userId: String //TODO: why is this String? The other user ids are Int.

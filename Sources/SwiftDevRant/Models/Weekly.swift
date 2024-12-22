@@ -1,5 +1,5 @@
 /// The weekly item data for the list of weeklies.
-public struct Weekly: Hashable, Identifiable {
+public struct Weekly: Hashable, Identifiable, Sendable {
     /// The number of the week. The first week starts with 1.
     public let week: Int
     

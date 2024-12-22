@@ -1,5 +1,5 @@
-public struct Collaboration: Hashable {
-    public enum Kind: Int {
+public struct Collaboration: Hashable, Sendable {
+    public enum Kind: Int, Sendable {
         case openSourceIdea = 1
         case existingOpenSourceProject = 2
         case projectIdea = 3

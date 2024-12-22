@@ -1,5 +1,5 @@
 public extension Profile.Content {
-    struct Numbers: Hashable {
+    struct Numbers: Hashable, Sendable {
         /// The number of rants that the user has created.
         public let rants: Int
         

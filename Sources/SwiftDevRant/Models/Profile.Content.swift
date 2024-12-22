@@ -1,5 +1,5 @@
 public extension Profile {
-    struct Content: Hashable {
+    struct Content: Hashable, Sendable {
         public let elements: Elements
         public let numbers: Numbers
         

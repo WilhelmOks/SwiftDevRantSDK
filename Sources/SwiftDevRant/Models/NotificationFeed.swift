@@ -1,8 +1,8 @@
 import Foundation
 
 /// Contains a list of all notifications for the logged in user and the numbers of unread notifications.
-public struct NotificationFeed: Hashable {
-    public enum Category: String, CaseIterable {
+public struct NotificationFeed: Hashable, Sendable {
+    public enum Category: String, CaseIterable, Sendable {
         case all = ""
         case upvotes = "upvotes"
         case mentions = "mentions"

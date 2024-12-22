@@ -1,5 +1,5 @@
 /// An image that the user has uploaded for his rant or comment.
-public struct AttachedImage: Hashable {
+public struct AttachedImage: Hashable, Sendable {
     public let url: String
     public let width: Int
     public let height: Int

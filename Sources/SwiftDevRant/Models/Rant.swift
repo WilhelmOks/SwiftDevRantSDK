@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Rant: Identifiable, Hashable {
+public struct Rant: Identifiable, Hashable, Sendable {
     /// The id of this rant.
     public let id: Int
     
@@ -23,7 +23,7 @@ public struct Rant: Identifiable, Hashable {
     public let isEdited: Bool
     
     /// True if this rant has been marked as a favorite by the logged in user.
-    public let isFavorite: Bool
+    public var isFavorite: Bool
     
     /// The text contents of this rant.
     public let text: String

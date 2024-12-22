@@ -1,7 +1,7 @@
 import Foundation
 
 /// Holds information, content and the activity history of a user.
-public struct Profile: Hashable {
+public struct Profile: Hashable, Sendable {
     /// The user's alias.
     public let username: String
     
@@ -39,7 +39,7 @@ public struct Profile: Hashable {
     public let devRantSupporter: Bool
     
     /// True if the logged in user is subscribed to the user of this profile.
-    public let subscribed: Bool //TODO: where is this set? It's not in the json data of the profile
+    public var subscribed: Bool //TODO: where is this set? It's not in the json data of the profile
     
     public init(username: String, score: Int, created: Date, about: String?, location: String?, skills: String?, github: String?, website: String?, content: Profile.Content, avatarLarge: User.Avatar, avatarSmall: User.Avatar, devRantSupporter: Bool, subscribed: Bool) {
         self.username = username
@@ -59,7 +59,7 @@ public struct Profile: Hashable {
 }
 
 public extension Profile {
-    enum ContentType: String {
+    enum ContentType: String, Sendable {
         /// All user content.
         case all = "all"
         

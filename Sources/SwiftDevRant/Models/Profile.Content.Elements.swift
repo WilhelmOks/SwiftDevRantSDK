@@ -1,5 +1,5 @@
 public extension Profile.Content {
-    struct Elements: Hashable {
+    struct Elements: Hashable, Sendable {
         /// The rants that the user has created.
         public let rants: [Rant]
         

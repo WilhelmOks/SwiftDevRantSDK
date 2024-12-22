@@ -1,8 +1,8 @@
 /// A URL or a user mention link in a rant or comment.
-public struct Link: Hashable {
-    public enum Kind {
-        case url
-        case userMention
+public struct Link: Hashable, Sendable {
+    public enum Kind: String, Sendable {
+        case url = "url"
+        case userMention = "mention"
     }
     
     public let kind: Kind
@@ -47,7 +47,7 @@ extension Link {
 extension Link.CodingData {
     var decoded: Link {
         .init(
-            kind: type == "mention" ? .userMention : .url,
+            kind: .init(rawValue: type) ?? .url,
             url: url,
             shortURL: short_url,
             title: title,

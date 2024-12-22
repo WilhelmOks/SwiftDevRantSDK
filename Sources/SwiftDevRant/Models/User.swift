@@ -1,5 +1,5 @@
 /// Represents a user.
-public struct User: Identifiable, Hashable {
+public struct User: Identifiable, Hashable, Sendable {
     public let id: Int
     
     public let name: String

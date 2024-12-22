@@ -1,6 +1,6 @@
 import Foundation
 
-public struct AuthToken: Hashable {
+public struct AuthToken: Hashable, Sendable {
     public let id: Int
     public let key: String
     public let expireTime: Date
@@ -18,26 +18,37 @@ public struct AuthToken: Hashable {
     }
 }
 
-extension AuthToken {
-    struct CodingData: Codable {
-        struct Container: Codable {
+public extension AuthToken {
+    public struct CodingData: Codable {
+        public struct Container: Codable {
             let auth_token: AuthToken.CodingData
         }
         
-        let id: Int
-        let key: String
-        let expire_time: Int
-        let user_id: Int
+        public let id: Int
+        public let key: String
+        public let expire_time: Int
+        public let user_id: Int
     }
 }
 
-extension AuthToken.CodingData {
-    var decoded: AuthToken {
+public extension AuthToken.CodingData {
+    public var decoded: AuthToken {
         .init(
             id: id,
             key: key,
             expireTime: Date(timeIntervalSince1970: TimeInterval(expire_time)),
             userId: user_id
+        )
+    }
+}
+
+public extension AuthToken {
+    public var encoded: AuthToken.CodingData {
+        .init(
+            id: id,
+            key: key,
+            expire_time: Int(expireTime.timeIntervalSince1970),
+            user_id: userId
         )
     }
 }

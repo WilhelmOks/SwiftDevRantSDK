@@ -1,6 +1,6 @@
 public extension NotificationFeed {
     /// Holds numbers of unread notifications for each type of notification.
-    struct UnreadNumbers: Decodable, Hashable {
+    struct UnreadNumbers: Decodable, Hashable, Sendable {
         /// The total number of unread notifications
         public let all: Int
         

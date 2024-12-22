@@ -1,7 +1,7 @@
 import Foundation
 
 /// A comment posted by a user inside of a rant.
-public struct Comment: Identifiable, Hashable {
+public struct Comment: Identifiable, Hashable, Sendable {
     /// The id of this comment.
     public let id: Int
     

@@ -1,6 +1,6 @@
 public extension Rant {
     /// Holds information about a specific weekly group rant.
-    struct Weekly: Hashable {
+    struct Weekly: Hashable, Sendable {
         public let week: Int
         public let topic: String
         public let date: String

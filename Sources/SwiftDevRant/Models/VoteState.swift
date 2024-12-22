@@ -1,5 +1,5 @@
 /// Represents the different kinds of votes that a rant or comment can have.
-public enum VoteState: Int, Hashable {
+public enum VoteState: Int, Hashable, Sendable {
     /// A given ++ vote.
     case upvoted = 1
     

@@ -1,8 +1,8 @@
 public extension RantFeed {
     /// Contains information about news given in rant feeds.
     /// - note: This is mostly used for weekly group rants.
-    struct News: Hashable, Identifiable {
-        public enum Action: String {
+    struct News: Hashable, Identifiable, Sendable {
+        public enum Action: String, Sendable {
             case groupRant = "grouprant"
             case none = "none"
             case rant = "rant"

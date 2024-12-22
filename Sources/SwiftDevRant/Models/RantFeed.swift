@@ -1,5 +1,5 @@
 /// Contains the list of rants for the logged in user and other random things.
-public struct RantFeed: Hashable {
+public struct RantFeed: Hashable, Sendable {
     public let rants: [Rant]
     
     public let sessionHash: String?
@@ -25,7 +25,7 @@ public struct RantFeed: Hashable {
 }
 
 public extension RantFeed {
-    enum Sort {
+    enum Sort: Sendable {
         /// The devRant algorithm decides what rants appear in the feed.
         case algorithm
         
@@ -36,7 +36,7 @@ public extension RantFeed {
         case top(range: Range)
     }
     
-    enum Range {
+    enum Range: Sendable {
         /// Rants from the one day.
         case day
         
