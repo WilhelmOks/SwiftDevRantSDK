@@ -360,7 +360,7 @@ public extension DevRantRequest {
         
         var parameters = config.urlParameters
 
-        parameters["content"] = text
+        parameters["rant"] = text
         parameters["tags"] = tags
         parameters["type"] = String(kind.rawValue)
         
@@ -411,11 +411,10 @@ public extension DevRantRequest {
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
     ///    - rantId: The id of the rant.
-    ///    - kind: The type of the rant.
     ///    - text: The text content of the rant.
     ///    - tags: The rants's associated tags.
     ///    - image: An image to attach to the rant.
-    func editRant(token: AuthToken, rantId: Int, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
+    func editRant(token: AuthToken, rantId: Int, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
         let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)", boundary: boundary, token: token)
@@ -424,7 +423,6 @@ public extension DevRantRequest {
 
         parameters["rant"] = text
         parameters["tags"] = tags
-        parameters["type"] = String(kind.rawValue)
         
         let convertedImage = image.flatMap { imageConversion.convert($0) }
         

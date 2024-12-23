@@ -10,7 +10,8 @@ public struct Link: Hashable, Sendable {
     /// The full URL.
     public let url: String
     
-    public let shortURL: String? //TODO: what is this and what is it used for?
+    /// No idea what this is and what it is supposed to be used for.
+    public let shortURL: String?
     
     /// The url as it is visible in the text of the rant or comment.
     public let title: String
