@@ -157,8 +157,6 @@ public extension DevRantRequest {
         parameters["limit"] = String(limit)
         parameters["skip"] = String(skip)
         
-        //parameters["sort"] = "algo" //TODO: This seems wrong. Check if this is needed or not.
-        
         let config = makeConfig(.get, path: "devrant/weekly-rants", urlParameters: parameters, token: token)
         
         let response: RantFeed.CodingData = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
@@ -194,7 +192,6 @@ public extension DevRantRequest {
         var parameters: [String: String] = [:]
 
         parameters["last_comment_id"] = lastCommentId.flatMap { String($0) }
-        //parameters["ver"] = "1.17.0.4" //TODO: check if this is needed
         
         let config = makeConfig(.get, path: "devrant/rants/\(rantId)", urlParameters: parameters, token: token)
         
