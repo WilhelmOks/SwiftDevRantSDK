@@ -256,7 +256,7 @@ public extension DevRantRequest {
         
         let config = makeConfig(.get, path: "users/\(userId)", urlParameters: parameters, token: token)
         
-        let response: Profile.CodingData = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        let response: Profile.CodingData.Container = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
         
         return response.decoded
     }

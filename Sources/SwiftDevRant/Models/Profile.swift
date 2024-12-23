@@ -39,7 +39,7 @@ public struct Profile: Hashable, Sendable {
     public let devRantSupporter: Bool
     
     /// True if the logged in user is subscribed to the user of this profile.
-    public var subscribed: Bool //TODO: where is this set? It's not in the json data of the profile
+    public var subscribed: Bool
     
     public init(username: String, score: Int, created: Date, about: String?, location: String?, skills: String?, github: String?, website: String?, content: Profile.Content, avatarLarge: User.Avatar, avatarSmall: User.Avatar, devRantSupporter: Bool, subscribed: Bool) {
         self.username = username
@@ -82,6 +82,11 @@ public extension Profile {
 
 extension Profile {
     struct CodingData: Codable {
+        struct Container: Codable {
+            let profile: Profile.CodingData
+            let subscribed: Int?
+        }
+        
         let username: String
         let score: Int
         let created_time: Int
@@ -94,26 +99,25 @@ extension Profile {
         let avatar: User.Avatar.CodingData
         let avatar_sm: User.Avatar.CodingData
         let dpp: Int?
-        let subscribed: Bool? //TODO: check if it exists in the json data
     }
 }
 
-extension Profile.CodingData {
+extension Profile.CodingData.Container {
     var decoded: Profile {
-        .init(
-            username: username,
-            score: score,
-            created: Date(timeIntervalSince1970: TimeInterval(created_time)),
-            about: about.isEmpty ? nil : about,
-            location: location.isEmpty ? nil : location,
-            skills: skills.isEmpty ? nil : skills,
-            github: github.isEmpty ? nil : github,
-            website: website.isEmpty ? nil : website,
-            content: content.decoded,
-            avatarLarge: avatar.decoded,
-            avatarSmall: avatar_sm.decoded,
-            devRantSupporter: (dpp ?? 0) != 0,
-            subscribed: subscribed ?? false
+        return .init(
+            username: profile.username,
+            score: profile.score,
+            created: Date(timeIntervalSince1970: TimeInterval(profile.created_time)),
+            about: profile.about.isEmpty ? nil : profile.about,
+            location: profile.location.isEmpty ? nil : profile.location,
+            skills: profile.skills.isEmpty ? nil : profile.skills,
+            github: profile.github.isEmpty ? nil : profile.github,
+            website: profile.website.isEmpty ? nil : profile.website,
+            content: profile.content.decoded,
+            avatarLarge: profile.avatar.decoded,
+            avatarSmall: profile.avatar_sm.decoded,
+            devRantSupporter: (profile.dpp ?? 0) != 0,
+            subscribed: (subscribed ?? 0) != 0
         )
     }
 }
