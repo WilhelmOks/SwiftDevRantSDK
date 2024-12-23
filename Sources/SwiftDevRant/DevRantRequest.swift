@@ -1,7 +1,7 @@
 import Foundation
 import KreeRequest
 
-public struct SwiftDevRant { //TODO: rename to something else to not collide with the module name
+public struct DevRantRequest {
     let request: KreeRequest
     let backend = DevRantBackend()
     
@@ -65,9 +65,15 @@ public struct SwiftDevRant { //TODO: rename to something else to not collide wit
         
         return body
     }
+    
+    /// For endpoints with the POST method in the devRant API the url parameters need to be passed as a string in the http body rather than in the URL.
+    /// The url encoding works but it might also work with other encodings like json or multipart form data.
+    private func stringBody(fromUrlParameters urlParameters: [String: String]) -> String {
+        String(KreeRequest.urlEncodedQueryString(from: urlParameters).dropFirst()) // dropping the first character "?"
+    }
 }
 
-public extension SwiftDevRant {
+public extension DevRantRequest {
     func logIn(username: String, password: String) async throws -> AuthToken {
         var parameters: [String: String] = [:]
         parameters["app"] = "3"
@@ -76,8 +82,7 @@ public extension SwiftDevRant {
         
         let config = makeConfig(.post, path: "users/auth-token")
         
-        // For the log in request the url encoded parameters are passed as a string in the http body instead of in the URL.
-        let body = String(KreeRequest.urlEncodedQueryString(from: parameters).dropFirst()) // dropping the first character "?"
+        let body = stringBody(fromUrlParameters: parameters)
         
         let response: AuthToken.CodingData.Container = try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
         
@@ -263,7 +268,9 @@ public extension SwiftDevRant {
     ///    - rantId: The id of the rant.
     ///    - vote: The vote for this rant.
     func voteOnRant(token: AuthToken, rantId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Rant {
-        var parameters: [String: String] = [:]
+        let config = makeConfig(.post, path: "devrant/rants/\(rantId)/vote", token: token)
+        
+        var parameters = config.urlParameters
 
         parameters["vote"] = String(vote.rawValue)
         
@@ -271,14 +278,13 @@ public extension SwiftDevRant {
             parameters["reason"] = String(downvoteReason.rawValue)
         }
         
-        let config = makeConfig(.post, path: "devrant/rants/\(rantId)/vote", urlParameters: parameters, token: token)
+        let body = stringBody(fromUrlParameters: parameters)
         
         struct Response: Codable {
             let rant: Rant.CodingData
-            //let comments: [Comment.CodingData]? //probably not needed
         }
         
-        let response: Response = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        let response: Response = try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
         
         return response.rant.decoded
     }
@@ -290,7 +296,9 @@ public extension SwiftDevRant {
     ///    - commentId: The id of the comment.
     ///    - vote: The vote for this comment.
     func voteOnComment(token: AuthToken, commentId: Int, vote: VoteState, downvoteReason: DownvoteReason = .notForMe) async throws -> Comment {
-        var parameters: [String: String] = [:]
+        let config = makeConfig(.post, path: "comments/\(commentId)/vote", token: token)
+        
+        var parameters = config.urlParameters
 
         parameters["vote"] = String(vote.rawValue)
         
@@ -298,13 +306,13 @@ public extension SwiftDevRant {
             parameters["reason"] = String(downvoteReason.rawValue)
         }
         
-        let config = makeConfig(.post, path: "comments/\(commentId)/vote", urlParameters: parameters, token: token)
+        let body = stringBody(fromUrlParameters: parameters)
         
         struct Response: Decodable {
             let comment: Comment.CodingData
         }
         
-        let response: Response = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        let response: Response = try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
         
         return response.comment.decoded
     }
@@ -319,7 +327,9 @@ public extension SwiftDevRant {
     ///    - location: The user's geographic location.
     ///    - website: The user's personal website.
     func editUserProfile(token: AuthToken, about: String, skills: String, github: String, location: String, website: String) async throws {
-        var parameters: [String: String] = [:]
+        let config = makeConfig(.post, path: "users/me/edit-profile", token: token)
+        
+        var parameters = config.urlParameters
 
         parameters["profile_about"] = about
         parameters["profile_skills"] = skills
@@ -327,9 +337,9 @@ public extension SwiftDevRant {
         parameters["profile_location"] = location
         parameters["profile_website"] = website
         
-        let config = makeConfig(.post, path: "users/me/edit-profile", urlParameters: parameters, token: token)
+        let body = stringBody(fromUrlParameters: parameters)
         
-        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
     }
     
     /// Creates and posts a rant.
@@ -346,7 +356,7 @@ public extension SwiftDevRant {
     func postRant(token: AuthToken, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws -> Int {
         let boundary = UUID().uuidString
         
-        let config = makeMultipartConfig(.post, path: "devrant/rants", boundary: boundary)
+        let config = makeMultipartConfig(.post, path: "devrant/rants", boundary: boundary, token: token)
         
         var parameters = config.urlParameters
 
@@ -389,7 +399,11 @@ public extension SwiftDevRant {
         
         let config = makeConfig(.post, path: "devrant/rants/\(rantId)/\(favoritePath)", token: token)
         
-        try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
+        let parameters = config.urlParameters
+        
+        let body = stringBody(fromUrlParameters: parameters)
+        
+        try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
     }
     
     /// Edits a posted rant.
@@ -404,7 +418,7 @@ public extension SwiftDevRant {
     func editRant(token: AuthToken, rantId: Int, kind: Rant.Kind, text: String, tags: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
-        let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)", boundary: boundary)
+        let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)", boundary: boundary, token: token)
         
         var parameters = config.urlParameters
 
@@ -429,7 +443,7 @@ public extension SwiftDevRant {
     func postComment(token: AuthToken, rantId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
-        let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)/comments", boundary: boundary)
+        let config = makeMultipartConfig(.post, path: "devrant/rants/\(rantId)/comments", boundary: boundary, token: token)
         
         var parameters = config.urlParameters
 
@@ -452,7 +466,7 @@ public extension SwiftDevRant {
     func editComment(token: AuthToken, commentId: Int, text: String, image: Data?, imageConversion: [ImageDataConverter] = [.unsupportedToJpeg]) async throws {
         let boundary = UUID().uuidString
         
-        let config = makeMultipartConfig(.post, path: "comments/\(commentId)", boundary: boundary)
+        let config = makeMultipartConfig(.post, path: "comments/\(commentId)", boundary: boundary, token: token)
         
         var parameters = config.urlParameters
 
@@ -486,16 +500,28 @@ public extension SwiftDevRant {
         try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
     }
     
-    /// Subscribes to or unsubscribes from a user.
+    /// Subscribes to a user.
     ///
     /// - Parameters:
     ///    - token: The token from the `logIn` call response.
-    ///    - userId: The id of the user to subscribe to or to unsubscribe from.
-    ///    - subscribe: `true` subscribes to the user, `false` unsubscribes from the user.
-    func subscribeToUser(token: AuthToken, userId: Int, subscribe: Bool) async throws {
-        let method: KreeRequest.Method = subscribe ? .post : .delete
+    ///    - userId: The id of the user to subscribe to.
+    func subscribeToUser(token: AuthToken, userId: Int) async throws {
+        let config = makeConfig(.post, path: "users/\(userId)/subscribe", token: token)
         
-        let config = makeConfig(method, path: "users/\(userId)/subscribe", token: token)
+        let parameters = config.urlParameters
+        
+        let body = stringBody(fromUrlParameters: parameters)
+        
+        try await request.requestJson(config: config, string: body, apiError: DevRantApiError.CodingData.self)
+    }
+    
+    /// Unsubscribes from a user.
+    ///
+    /// - Parameters:
+    ///    - token: The token from the `logIn` call response.
+    ///    - userId: The id of the user to unsubscribe from.
+    func unsubscribeFromUser(token: AuthToken, userId: Int) async throws {
+        let config = makeConfig(.delete, path: "users/\(userId)/subscribe", token: token)
         
         try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
     }

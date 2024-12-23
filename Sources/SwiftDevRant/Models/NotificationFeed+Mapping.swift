@@ -28,7 +28,7 @@ public extension NotificationFeed {
             let rantId = notification.rantId
             let commentId = notification.commentId
             let userId = notification.userId
-            let userInfo = userInfos.first { $0.userId == String(userId) }
+            let userInfo = userInfos.first { $0.userId == userId }
             let userAvatar = userInfo?.avatar ?? .init(colorHex: "cccccc", imageUrlPath: nil)
             let userName = userInfo?.username ?? ""
             

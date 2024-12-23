@@ -39,7 +39,7 @@ extension NotificationFeed {
         let check_time: Int
         let items: [Notification.CodingData]
         let unread: UnreadNumbers.CodingData
-        let username_map: UserInfo.CodingData.Container
+        let username_map: [String: NotificationFeed.UserInfo.UsernameMapEntryCodingData]
     }
 }
 
@@ -49,7 +49,9 @@ extension NotificationFeed.CodingData {
             lastChecked: Date(timeIntervalSince1970: TimeInterval(check_time)),
             notifications: items.map(\.decoded),
             unreadNumbers: unread.decoded,
-            userInfos: username_map.array.map(\.decoded)
+            userInfos: username_map.map { (key, value) in
+                .init(avatar: value.avatar.decoded, username: value.name, userId: Int(key) ?? 0)
+            }
         )
     }
 }
