@@ -1,5 +1,5 @@
 public extension Rant {
-    public enum Kind: Int, Sendable {
+    enum Kind: Int, Sendable {
         case rant = 1
         case collaboration = 2
         case meme = 3

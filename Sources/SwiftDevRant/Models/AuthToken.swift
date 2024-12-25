@@ -19,7 +19,7 @@ public struct AuthToken: Hashable, Sendable {
 }
 
 public extension AuthToken {
-    public struct CodingData: Codable {
+    struct CodingData: Codable {
         public struct Container: Codable {
             let auth_token: AuthToken.CodingData
         }
@@ -32,7 +32,7 @@ public extension AuthToken {
 }
 
 public extension AuthToken.CodingData {
-    public var decoded: AuthToken {
+    var decoded: AuthToken {
         .init(
             id: id,
             key: key,
@@ -43,7 +43,7 @@ public extension AuthToken.CodingData {
 }
 
 public extension AuthToken {
-    public var encoded: AuthToken.CodingData {
+    var encoded: AuthToken.CodingData {
         .init(
             id: id,
             key: key,

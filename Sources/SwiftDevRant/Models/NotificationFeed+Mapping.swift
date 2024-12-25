@@ -1,7 +1,7 @@
 import Foundation
 
 public extension NotificationFeed {
-    public struct MappedNotificationItem: Hashable, Sendable {
+    struct MappedNotificationItem: Hashable, Sendable {
         public let rantId: Rant.ID
         public let commentId: Comment.ID?
         public let userId: Int
@@ -23,7 +23,7 @@ public extension NotificationFeed {
         }
     }
     
-    public var mappedItems: [MappedNotificationItem] {
+    var mappedItems: [MappedNotificationItem] {
         notifications.map { notification in
             let rantId = notification.rantId
             let commentId = notification.commentId
@@ -45,7 +45,7 @@ public extension NotificationFeed {
         }
     }
     
-    public var unreadByCategory: [NotificationFeed.Category: Int] {
+    var unreadByCategory: [NotificationFeed.Category: Int] {
         [
             .all:           unreadNumbers.all,
             .upvotes:       unreadNumbers.upvotes,
