@@ -175,7 +175,15 @@ public extension DevRantRequest {
         parameters["last_time"] = lastChecked.flatMap { String(Int($0.timeIntervalSince1970)) } ?? "0"
         parameters["ext_prof"] = "1" // I don't know wtf that is.
         
-        let config = makeConfig(.get, path: "users/me/notif-feed\(category.rawValue)", urlParameters: parameters, token: token)
+        let categoryUrlPart: String
+        switch category {
+        case .all:
+            categoryUrlPart = ""
+        default:
+            categoryUrlPart = "/\(category.rawValue)"
+        }
+        
+        let config = makeConfig(.get, path: "users/me/notif-feed\(categoryUrlPart)", urlParameters: parameters, token: token)
         
         let response: NotificationFeed.CodingData.Container = try await request.requestJson(config: config, apiError: DevRantApiError.CodingData.self)
         
