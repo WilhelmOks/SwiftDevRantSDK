@@ -2,6 +2,8 @@
 import UIKit
 #elseif os(macOS)
 import AppKit
+#else
+import Foundation
 #endif
 
 private struct ImageHeaderData {
