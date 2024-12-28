@@ -11,7 +11,7 @@ public extension Profile {
 }
 
 extension Profile.Content {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let content: Elements.CodingData
         let counts: Numbers.CodingData
     }

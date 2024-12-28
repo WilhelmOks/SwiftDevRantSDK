@@ -16,7 +16,7 @@ public extension Rant {
 }
 
 extension Rant.Weekly {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let week: Int
         let topic: String
         let date: String

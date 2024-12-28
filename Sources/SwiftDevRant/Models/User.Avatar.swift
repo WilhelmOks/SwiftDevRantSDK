@@ -18,7 +18,7 @@ public extension User {
 }
 
 extension User.Avatar {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let b: String
         let i: String?
     }

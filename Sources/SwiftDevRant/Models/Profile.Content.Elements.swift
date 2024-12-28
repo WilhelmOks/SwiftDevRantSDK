@@ -26,7 +26,7 @@ public extension Profile.Content {
 }
 
 extension Profile.Content.Elements {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let rants: [Rant.CodingData]
         let upvoted: [Rant.CodingData]
         let comments: [Comment.CodingData]

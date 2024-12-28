@@ -12,7 +12,7 @@ public struct AttachedImage: Hashable, Sendable {
 }
 
 extension AttachedImage {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let url: String
         let width: Int
         let height: Int

@@ -81,8 +81,8 @@ public extension Profile {
 }
 
 extension Profile {
-    struct CodingData: Codable {
-        struct Container: Codable {
+    struct CodingData: Decodable {
+        struct Container: Decodable {
             let profile: Profile.CodingData
             let subscribed: Int?
         }

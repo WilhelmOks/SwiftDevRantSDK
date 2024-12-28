@@ -52,7 +52,7 @@ public extension RantFeed {
 }
 
 extension RantFeed {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let rants: [Rant.CodingData]
         //let settings //not sure what the purpose is. probably not needed.
         let set: String?

@@ -200,10 +200,11 @@ public extension DevRantRequest {
         var parameters: [String: String] = [:]
 
         parameters["last_comment_id"] = lastCommentId.flatMap { String($0) }
+        parameters["ver"] = "1.17.0.4" //if this is missing, there will be no "links" in the comments.
         
         let config = makeConfig(.get, path: "devrant/rants/\(rantId)", urlParameters: parameters, token: token)
         
-        struct Response: Codable {
+        struct Response: Decodable {
             let rant: Rant.CodingData
             let comments: [Comment.CodingData]?
         }
@@ -285,7 +286,7 @@ public extension DevRantRequest {
         
         let body = stringBody(fromUrlParameters: parameters)
         
-        struct Response: Codable {
+        struct Response: Decodable {
             let rant: Rant.CodingData
         }
         

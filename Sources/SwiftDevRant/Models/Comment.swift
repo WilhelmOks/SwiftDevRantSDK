@@ -47,7 +47,7 @@ public struct Comment: Identifiable, Hashable, Sendable {
 }
 
 extension Comment {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let id: Int
         let rant_id: Int
         let body: String

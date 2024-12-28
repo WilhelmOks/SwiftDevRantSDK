@@ -35,10 +35,10 @@ public struct Link: Hashable, Sendable {
 }
 
 extension Link {
-    struct CodingData: Codable {
+    struct CodingData: Decodable {
         let type: String
-        let url: String
-        let short_url: String
+        let url: StringOrIntDecodable
+        let short_url: String?
         let title: String
         let start: Int?
         let end: Int?
@@ -49,7 +49,7 @@ extension Link.CodingData {
     var decoded: Link {
         .init(
             kind: .init(rawValue: type) ?? .url,
-            url: url,
+            url: url.decodedAsString(),
             shortURL: short_url,
             title: title,
             start: start,
