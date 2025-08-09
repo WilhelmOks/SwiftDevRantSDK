@@ -1,7 +1,7 @@
 import Foundation
 import KreeRequest
 
-public struct DevRantRequest {
+public struct DevRantRequest: Sendable {
     let request: KreeRequest
     let backend = DevRantBackend()
     
