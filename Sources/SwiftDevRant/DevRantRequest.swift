@@ -4,9 +4,10 @@ import KreeRequest
 public struct DevRantRequest: Sendable {
     let request: KreeRequest
     let backend = DevRantBackend()
-    var ignoreCertificateErrors = false
+    let ignoreCertificateErrors: Bool
     
-    public init(requestLogger: Logger) {
+    public init(requestLogger: Logger, ignoreCertificateErrors: Bool = false) {
+        self.ignoreCertificateErrors = ignoreCertificateErrors
         self.request = KreeRequest(encoder: .devRant, decoder: .devRant, logger: requestLogger)
     }
     
