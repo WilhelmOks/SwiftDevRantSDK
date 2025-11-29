@@ -4,6 +4,7 @@ import KreeRequest
 public struct DevRantRequest: Sendable {
     let request: KreeRequest
     let backend = DevRantBackend()
+    var ignoreCertificateErrors = false
     
     public init(requestLogger: Logger) {
         self.request = KreeRequest(encoder: .devRant, decoder: .devRant, logger: requestLogger)
@@ -22,7 +23,7 @@ public struct DevRantRequest: Sendable {
         var headers = headers
         headers["Content-Type"] = "application/x-www-form-urlencoded"
         
-        return .init(method: method, backend: backend, path: path, urlParameters: urlParameters, headers: headers)
+        return .init(method: method, backend: backend, path: path, urlParameters: urlParameters, headers: headers, ignoreCertificateErrors: ignoreCertificateErrors)
     }
     
     private func makeMultipartConfig(_ method: KreeRequest.Method, path: String, parameters: [String: String] = [:], boundary: String, headers: [String: String] = [:], token: AuthToken? = nil) -> KreeRequest.Config {
@@ -38,7 +39,7 @@ public struct DevRantRequest: Sendable {
         var headers = headers
         headers["Content-Type"] = "multipart/form-data; boundary=\(boundary)"
         
-        return .init(method: method, backend: backend, path: path, urlParameters: parameters, headers: headers)
+        return .init(method: method, backend: backend, path: path, urlParameters: parameters, headers: headers, ignoreCertificateErrors: ignoreCertificateErrors)
     }
     
     private func multipartBody(parameters: [String: String], boundary: String, imageData: Data?) -> Data {
